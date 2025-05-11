@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "balenamcp": {
+      "command": "/path/to/balenamcp",
+      "args": []
+    }
+  }
+} 
