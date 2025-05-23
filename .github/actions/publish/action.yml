@@ -1,0 +1,67 @@
+---
+name: Custom publish
+description: Build and upload artifacts to GitHub Releases
+# https://github.com/product-os/flowzone/tree/master/.github/actions
+inputs:
+  json:
+    description: "JSON stringified object containing all the inputs from the calling workflow"
+    required: true
+  secrets:
+    description: "JSON stringified object containing all the secrets from the calling workflow"
+    required: true
+
+runs:
+  # https://docs.github.com/en/actions/creating-actions/creating-a-composite-action
+  using: "composite"
+  steps:
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: go.mod
+
+    - name: Get dependencies
+      shell: bash
+      run: go mod download
+
+    - name: Run tests
+      shell: bash
+      run: go test -v
+
+    # # Get the Go environment from the host
+    # - name: Get Go environment
+    #   shell: pwsh
+    #   run: |
+    #     $goos = go env GOOS
+    #     $goarch = go env GOARCH
+    #     echo "GOOS=$goos" >> $env:GITHUB_ENV
+    #     echo "GOARCH=$goarch" >> $env:GITHUB_ENV
+
+    # Set the Go environment to the matrix value
+    - name: Set Go environment
+      shell: pwsh
+      run: |
+        $parts = "${{ env.matrix_value }}".Split("/")
+        $goos = $parts[0]
+        $goarch = $parts[1]
+        echo "GOOS=$goos" >> $env:GITHUB_ENV
+        echo "GOARCH=$goarch" >> $env:GITHUB_ENV
+
+    - name: Build binary
+      shell: bash
+      run: |
+        echo "Building for $GOOS/$GOARCH..."
+        if [ "$GOOS" == "windows" ]; then
+          go build -ldflags="-s -w" -o bin/balenamcp-$GOOS-$GOARCH.exe .
+        else
+          go build -ldflags="-s -w" -o bin/balenamcp-$GOOS-$GOARCH .
+        fi
+
+    # https://github.com/actions/upload-artifact
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: gh-release-${{ env.GOOS }}-${{ env.GOARCH }}
+        retention-days: 1
+        path: |
+          bin/
