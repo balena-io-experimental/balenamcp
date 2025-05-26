@@ -1,0 +1,14 @@
+- commits:
+    - subject: Test and publish binaries with Flowzone
+      hash: c7fa6321c29314019381ee6fc61373214380f8bf
+      body: ""
+      footer:
+        Change-type: patch
+        change-type: patch
+        Signed-off-by: Kyle Harding <kyle@balena.io>
+        signed-off-by: Kyle Harding <kyle@balena.io>
+      author: Kyle Harding
+      nested: []
+  version: 0.0.2
+  title: ""
+  date: 2025-05-26T13:37:42.891Z
